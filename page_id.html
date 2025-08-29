@@ -63,8 +63,9 @@
     <!-- Formulario de Registro -->
     <div id="registerForm" class="hidden">
       <h2>Registro</h2>
-      <input type="email" id="regEmail" placeholder="Correo">
-      <input type="password" id="regPass" placeholder="Contraseña">
+      <input type="text" id="regNam" placeholder="Nombre" required="">
+      <input type="email" id="regEmail" placeholder="Correo electrónico" required="">
+      <input type="password" id="regPass" placeholder="Contraseña" required="">
       <button onclick="register()">Registrar</button>
       <div class="switch">
         ¿Ya tienes cuenta? <a href="#" onclick="toggleForms()">Inicia Sesión</a>
@@ -76,19 +77,24 @@
   <script type="module">
     // Importar Firebase desde CDN
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } 
-      from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import {  
+      getAuth,  
+      createUserWithEmailAndPassword,  
+      signInWithEmailAndPassword,  
+      sendEmailVerification,  
+      updateProfile 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
     // Configuración de tu proyecto (cambia esto con tus datos)
     const firebaseConfig = {
-  apiKey: "AIzaSyDvB_Zulzyw0nyLHE9Ofo3eP2McAPa52lg",
-  authDomain: "universermanga.firebaseapp.com",
-  projectId: "universermanga",
-  storageBucket: "universermanga.firebasestorage.app",
-  messagingSenderId: "508804251809",
-  appId: "1:508804251809:web:2a0e0afb38cf0b1fc4b0e0",
-  measurementId: "G-KVMYQ7RHD6"
-};
+      apiKey: "AIzaSyDvB_Zulzyw0nyLHE9Ofo3eP2McAPa52lg",
+      authDomain: "universermanga.firebaseapp.com",
+      projectId: "universermanga",
+      storageBucket: "universermanga.firebasestorage.app",
+      messagingSenderId: "508804251809",
+      appId: "1:508804251809:web:2a0e0afb38cf0b1fc4b0e0",
+      measurementId: "G-KVMYQ7RHD6"
+    };
 
     // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
@@ -100,47 +106,55 @@
       document.getElementById("registerForm").classList.toggle("hidden");
     }
 
-    // Registrar usuario
+    // Registrar usuario con nombre
     window.register = function() {
-  const email = document.getElementById("regEmail").value;
-  const pass = document.getElementById("regPass").value;
+      const name = document.getElementById("regNam").value; 
+      const email = document.getElementById("regEmail").value;
+      const pass = document.getElementById("regPass").value;
 
-  createUserWithEmailAndPassword(auth, email, pass)
-    .then(userCredential => {
-      // Enviar correo de verificación
-      sendEmailVerification(userCredential.user)
-        .then(() => {
-          alert("✅ Usuario registrado correctamente. Revisa tu correo para verificar la cuenta.");
-          toggleForms(); // mostrar login
+      createUserWithEmailAndPassword(auth, email, pass)
+        .then(userCredential => {
+          const user = userCredential.user;
+
+          // Guardar nombre en displayName
+          updateProfile(user, {
+            displayName: name
+          }).then(() => {
+            // Enviar correo de verificación
+            sendEmailVerification(user).then(() => {
+              alert("✅ Usuario registrado correctamente. Revisa tu correo.");
+              toggleForms(); 
+            });
+          }).catch(err => {
+            alert("❌ Error al guardar nombre: " + err.message);
+          });
+        })
+        .catch(error => {
+          alert("❌ Error: " + error.message);
         });
-    })
-    .catch(error => {
-      alert("Error: " + error.message);
-    });
-}
-
+    };
 
     // Iniciar sesión
     window.login = function() {
-  const email = document.getElementById("loginEmail").value;
-  const pass = document.getElementById("loginPass").value;
+      const email = document.getElementById("loginEmail").value;
+      const pass = document.getElementById("loginPass").value;
 
-  signInWithEmailAndPassword(auth, email, pass)
-    .then(userCredential => {
-      const user = userCredential.user;
+      signInWithEmailAndPassword(auth, email, pass)
+        .then(userCredential => {
+          const user = userCredential.user;
 
-      if (user.emailVerified) {
-        alert("🎉 Bienvenido " + user.email);
-        window.location.href = "index.html"; // redirige a la página principal
-      } else {
-        alert("⚠️ Debes verificar tu correo antes de entrar.");
-      }
-    })
-    .catch(error => {
-      alert("Error: " + error.message);
-    });
-}
-
+          if (user.emailVerified) {
+            const nombre = user.displayName || user.email; 
+            alert("🎉 Bienvenido " + nombre);
+            window.location.href = "index.html"; // redirige al home
+          } else {
+            alert("⚠️ Debes verificar tu correo antes de entrar.");
+          }
+        })
+        .catch(error => {
+          alert("❌ Error: " + error.message);
+        });
+    }
   </script>
 </body>
 </html>
