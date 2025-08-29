@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Register con Firebase</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      width: 350px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+    }
+    h2 { text-align: center; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      background: #007BFF;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover { background: #0056b3; }
+    .switch {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Formulario de Login -->
+    <div id="loginForm">
+      <h2>Iniciar Sesión</h2>
+      <input type="email" id="loginEmail" placeholder="Correo">
+      <input type="password" id="loginPass" placeholder="Contraseña">
+      <button onclick="login()">Entrar</button>
+      <div class="switch">
+        ¿No tienes cuenta? <a href="#" onclick="toggleForms()">Regístrate</a>
+      </div>
+    </div>
+
+    <!-- Formulario de Registro -->
+    <div id="registerForm" class="hidden">
+      <h2>Registro</h2>
+      <input type="email" id="regEmail" placeholder="Correo">
+      <input type="password" id="regPass" placeholder="Contraseña">
+      <button onclick="register()">Registrar</button>
+      <div class="switch">
+        ¿Ya tienes cuenta? <a href="#" onclick="toggleForms()">Inicia Sesión</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    // Importar Firebase desde CDN
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } 
+      from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    // Configuración de tu proyecto (cambia esto con tus datos)
+    const firebaseConfig = {
+  apiKey: "AIzaSyDvB_Zulzyw0nyLHE9Ofo3eP2McAPa52lg",
+  authDomain: "universermanga.firebaseapp.com",
+  projectId: "universermanga",
+  storageBucket: "universermanga.firebasestorage.app",
+  messagingSenderId: "508804251809",
+  appId: "1:508804251809:web:2a0e0afb38cf0b1fc4b0e0",
+  measurementId: "G-KVMYQ7RHD6"
+};
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Alternar entre login y register
+    window.toggleForms = function() {
+      document.getElementById("loginForm").classList.toggle("hidden");
+      document.getElementById("registerForm").classList.toggle("hidden");
+    }
+
+    // Registrar usuario
+    window.register = function() {
+  const email = document.getElementById("regEmail").value;
+  const pass = document.getElementById("regPass").value;
+
+  createUserWithEmailAndPassword(auth, email, pass)
+    .then(userCredential => {
+      // Enviar correo de verificación
+      sendEmailVerification(userCredential.user)
+        .then(() => {
+          alert("✅ Usuario registrado correctamente. Revisa tu correo para verificar la cuenta.");
+          toggleForms(); // mostrar login
+        });
+    })
+    .catch(error => {
+      alert("Error: " + error.message);
+    });
+}
+
+
+    // Iniciar sesión
+    window.login = function() {
+  const email = document.getElementById("loginEmail").value;
+  const pass = document.getElementById("loginPass").value;
+
+  signInWithEmailAndPassword(auth, email, pass)
+    .then(userCredential => {
+      const user = userCredential.user;
+
+      if (user.emailVerified) {
+        alert("🎉 Bienvenido " + user.email);
+        window.location.href = "index.html"; // redirige a la página principal
+      } else {
+        alert("⚠️ Debes verificar tu correo antes de entrar.");
+      }
+    })
+    .catch(error => {
+      alert("Error: " + error.message);
+    });
+}
+
+  </script>
+</body>
+</html>
