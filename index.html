@@ -1,127 +1,230 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
   <meta charset="UTF-8">
+
   <title>UniversManga - Inicio</title>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="styles/style.css">
 </head>
+
 <body>
+
   <header>
+
     <a href="index.html" class="logo">UniversManga</a>
+
     <div class="top-bar">
+
       <div class="search-area">
+
         <form class="box">
+
         <div class="search"><input type="text" placeholder="Buscar..."></div>
+
         <a>
+
           <i class="fas fa-search"></i>
+
         </a>
+
       </form>
+
         <button class="filter-btn">Filtros</button>
+
       </div>
+
       <button class="btn amateur">Amateur</button>
+
       <button class="btn prof">Manga Profesional</button>
+
       <button class="btn anime">Proyecto Anime</button>
+
     </div>
+
   </header>
 
+
+
   <!-- Layout principal -->
+
   <div class="container">
+
     <!-- Izquierda -->
+
     <aside class="sidebar">
+
       <h3>📹 Tutoriales</h3>
+
       <div class="video-box"></div>
+
       <div class="video-box"></div>
+
       <div class="video-box"></div>
+
     </aside>
+
+
 
     <!-- Centro -->
+
     <main class="main-content">
+
       <!-- Banner superior -->
+
       <div class="banner">
+
         <img src="img/banner1.png" alt="Banner 1">
+
         <button class="arrow left">❮</button>
+
         <button class="arrow right">❯</button>
+
       </div>
+
+
 
       <!-- Mangas destacados -->
+
       <section class="destacados">
+
         <h2>✨ Mangas Destacados</h2>
+
         <div class="grid">
+
           <div class="manga" onclick="location.href='manga1.html'">
+
             <img src="img/pagina1.png" alt="Manga 1">
+
             <h3>Manga 1</h3>
+
           </div>
+
           <div class="manga" onclick="location.href='manga2.html'">
+
             <img src="img/manga2jpg" alt="Manga 2">
+
             <h3>Manga 2</h3>
+
           </div>
+
         </div>
+
       </section>
+
+
 
       <!-- Todos los mangas -->
+
       <section class="destacados">
+
         <h2>📚 Todos los Mangas</h2>
+
         <div class="grid">
+
           <div class="manga" onclick="location.href='manga1.html'">
+
             <img src="img/manga1.jpg" alt="Manga 1">
+
             <h3>Manga 1</h3>
+
           </div>
+
           <div class="manga" onclick="location.href='manga2.html'">
+
             <img src="img/manga2.jpg" alt="Manga 2">
+
             <h3>Manga 2</h3>
+
           </div>
+
         </div>
+
       </section>
 
+
+
       <!-- Banner inferior -->
+
       <div class="banner">
+
         <img src="img/banner2.png" alt="Banner 2">
+
         <button class="arrow left">❮</button>
+
         <button class="arrow right">❯</button>
+
       </div>
+
     </main>
 
+
+
     <!-- Derecha -->
+
     <aside class="ads">
+
       <!-- Usuario arriba -->
+
       <div class="user-box">
+
         <img src="img/user-default.png" alt="Usuario">
-        <h4>NombreUsuario</h4>
+
+        <h4 id="Name_Id">NombreUsuario</h4>
+
         <button class="discord-btn">💬 Discord</button>
+
       </div>
 
+
+
       <!-- Anuncios abajo -->
+
       <h3>📢 Anuncios</h3>
+
       <div class="ad-box"></div>
+
       <div class="ad-box"></div>
+
     </aside>
+
   </div>
+
   
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
   const firebaseConfig = {
-  apiKey: "AIzaSyDvB_Zulzyw0nyLHE9Ofo3eP2McAPa52lg",
-  authDomain: "universermanga.firebaseapp.com",
-  projectId: "universermanga",
-  storageBucket: "universermanga.firebasestorage.app",
-  messagingSenderId: "508804251809",
-  appId: "1:508804251809:web:2a0e0afb38cf0b1fc4b0e0",
-  measurementId: "G-KVMYQ7RHD6"
-};
+    apiKey: "AIzaSyDvB_Zulzyw0nyLHE9Ofo3eP2McAPa52lg",
+    authDomain: "universermanga.firebaseapp.com",
+    projectId: "universermanga",
+    storageBucket: "universermanga.firebasestorage.app",
+    messagingSenderId: "508804251809",
+    appId: "1:508804251809:web:2a0e0afb38cf0b1fc4b0e0",
+    measurementId: "G-KVMYQ7RHD6"
+  };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
+  // Donde mostrar el nombre en el sidebar
+  const UserName = document.getElementById("Name_Id");
+
   onAuthStateChanged(auth, (user) => {
     if (!user || !user.emailVerified) {
-      alert("⚠️ Debes iniciar sesión y verificar tu correo");
-      window.location.href = "page_id.html"; // redirige al login
+      window.location.href = "page_id.html"; // login
+    } else {
+      // Mostrar nombre en el sidebar
+      UserName.textContent = user.displayName || "Usuario";
     }
   });
 </script>
-</body>
-</html>
 
+</body>
+
+</html>
