@@ -554,3 +554,76 @@ body {
   color: white;
 
 }
+
+/* 🔹 Fondo del modal */
+.modal {
+  display: none; /* Oculto por defecto */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+}
+
+/* 🔹 Contenedor del contenido */
+.modal-content {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  color: white;
+  border: 2px solid #ffcc00;
+  text-align: center;
+  animation: abrirModal 0.3s ease-out;
+}
+
+/* 🔹 Botón cerrar (X) */
+.close {
+  color: #ffcc00;
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #fff;
+}
+
+/* 🔹 Lista de enlaces */
+.modal-content ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.modal-content li {
+  margin: 15px 0;
+}
+
+.modal-content a {
+  color: #ffcc00;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.modal-content a:hover {
+  color: white;
+}
+
+/* 🔹 Animación de aparición */
+@keyframes abrirModal {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
