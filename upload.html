@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Publicar Manga</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; background:#0f0f10; color:#eee; padding:20px; }
+    .card { background:#151515; padding:16px; border-radius:8px; max-width:760px; margin:auto; }
+    label { display:block; margin-top:10px; font-weight:600; }
+    input[type="text"], textarea { width:100%; padding:8px; border-radius:6px; border:1px solid #333; background:#0b0b0b; color:#eee; }
+    input[type="file"] { margin-top:6px; }
+    button { margin-top:12px; padding:10px 14px; border-radius:8px; border:0; background:#0b84ff; color:white; cursor:pointer; }
+    .status { margin-top:10px; font-size:14px; }
+    .thumb { max-width:140px; display:block; margin-top:8px; border-radius:6px; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Publicar nuevo Manga</h2>
+
+    <form id="form-publish">
+      <label>Título</label>
+      <input id="title" type="text" required placeholder="Título del manga">
+
+      <label>Descripción (opcional)</label>
+      <textarea id="description" rows="3" placeholder="Descripción breve"></textarea>
+
+      <label>Portada (thumbnail)</label>
+      <input id="cover" type="file" accept="image/*" required>
+      <img id="cover-preview" class="thumb" style="display:none">
+
+      <label>Páginas (sube en orden) — puedes seleccionar varias</label>
+      <input id="pages" type="file" accept="image/*" multiple required>
+
+      <button type="submit">Publicar Manga</button>
+      <div class="status" id="status">Esperando acción...</div>
+    </form>
+  </div>
+
+  <!-- Supabase SDK (si tu supabase.js depende de window.supabase) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script type="module">
+    import { supabase } from './supabase.js'; // tu archivo que exporta "supabase"
+
+    // === CONFIGURA ESTO ===
+    const CLOUDINARY_CLOUD_NAME = 'dohczccic'; // ejemplo: 'mycloud'
+    const CLOUDINARY_UPLOAD_PRESET = 'unsigned_webmanga'; // preset unsigned creado en Cloudinary
+    // =======================
+
+    // Si usas Firebase Auth y quieres guardar user_id del creador:
+    //  - Obtén el uid desde Firebase y asígnalo aquí antes de insertar.
+    // Si usas Supabase Auth, lo puedes obtener con supabase.auth.getUser()
+    async function getCurrentUserId() {
+      // Ejemplo con Supabase Auth:
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (data?.user) return data.user.id;
+      } catch (err) {
+        // no hay usuario supabase (puede que uses Firebase)
+      }
+
+      // Si usas Firebase Auth, reemplaza con tu método: firebase.auth().currentUser.uid
+      // return firebaseUserUid || null;
+
+      return null; // si no tienes user id disponible
+    }
+
+    const form = document.getElementById('form-publish');
+    const status = document.getElementById('status');
+    const coverInput = document.getElementById('cover');
+    const pagesInput = document.getElementById('pages');
+    const coverPreview = document.getElementById('cover-preview');
+
+    coverInput.addEventListener('change', () => {
+      const f = coverInput.files[0];
+      if (!f) { coverPreview.style.display = 'none'; return; }
+      coverPreview.src = URL.createObjectURL(f);
+      coverPreview.style.display = 'block';
+    });
+
+    async function uploadToCloudinary(file) {
+      const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+      const res = await fetch(url, {
+        method: 'POST',
+        body: fd
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error('Cloudinary upload failed: ' + txt);
+      }
+
+      const data = await res.json();
+      // secure_url es la URL con https
+      return data.secure_url;
+    }
+
+    async function uploadPagesSequential(files) {
+      const urls = [];
+      for (let i = 0; i < files.length; i++) {
+        status.textContent = `Subiendo página ${i+1} de ${files.length}...`;
+        const url = await uploadToCloudinary(files[i]);
+        urls.push(url);
+      }
+      return urls;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.style.color = '#eee';
+      status.textContent = 'Iniciando subida...';
+
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const coverFile = coverInput.files[0];
+      const pageFiles = [...pagesInput.files];
+
+      if (!title || !coverFile || pageFiles.length === 0) {
+        status.style.color = 'orange';
+        status.textContent = 'Completa título, portada y al menos 1 página.';
+        return;
+      }
+
+      try {
+        // 1) Subir portada
+        status.textContent = 'Subiendo portada...';
+        const coverUrl = await uploadToCloudinary(coverFile);
+
+        // 2) Subir páginas (secuencial, para preservar orden)
+        const pagesUrls = await uploadPagesSequential(pageFiles);
+
+        // 3) Obtener user id (opcional)
+        const userId = await getCurrentUserId(); // puede ser null
+
+        // 4) Insertar en Supabase
+        status.textContent = 'Guardando en base de datos...';
+        const insertObj = {
+          title: title,
+          thumbnail: coverUrl,
+          content: JSON.stringify(pagesUrls) // guardamos JSON con URLs de las páginas
+        };
+        if (userId) insertObj.user_id = userId;
+
+        const { data, error } = await supabase
+          .from('web_mangas')
+          .insert([ insertObj ])
+          .select();
+
+        if (error) throw error;
+
+        status.style.color = 'lightgreen';
+        status.textContent = '✅ Manga publicado correctamente';
+        form.reset();
+        coverPreview.style.display = 'none';
+      } catch (err) {
+        console.error(err);
+        status.style.color = 'salmon';
+        status.textContent = '❌ Error: ' + (err.message || err);
+      }
+    });
+  </script>
+</body>
+</html>
