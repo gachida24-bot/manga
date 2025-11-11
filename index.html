@@ -157,7 +157,9 @@
 
 
 
-        <img src="img/banner1.png" alt="Banner 1">
+        <img src="
+          https://res.cloudinary.com/dohczccic/image/upload/v1762529882/banner1_n6xowp.png"
+          alt="Banner 1">
 
 
 
@@ -249,40 +251,11 @@
 
 
 
-        <div class="grid">
+        <div class="grid" id="grid">
 
-
-
-          <div class="manga" onclick="location.href='manga1.html'">
-
-
-
-            <img src="img/manga1.jpg" alt="Manga 1">
-
-
-
-            <h3>Manga 1</h3>
-
-
-
-          </div>
-
-
-
-          <div class="manga" onclick="location.href='manga2.html'">
-
-
-
-            <img src="img/manga2.jpg" alt="Manga 2">
-
-
-
-            <h3>Manga 2</h3>
-
-
-
-          </div>
-
+          <!-- debe tener una class="manga" tambien src="imagen" y title=""
+            tambien location.href='manga1.html' -->
+          
 
 
         </div>
@@ -368,7 +341,7 @@
       <li><a href="logout.html">Cerrar sesión</a></li>
       <hr>
       <h2>crear</h2>
-      <li><a href="setting/upload.html">publicar</a></li>
+      <li><a href="upload.html">publicar</a></li>
       <li><a href="#">postear</a></li>
     </ul>
   </div>
@@ -405,72 +378,9 @@
 
 
   <script src="script/main.js"></script>
-  <script type="module">
+  <script type="module" src="script/firebase3.js"></script>
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-
-
-  const firebaseConfig = {
-
-    apiKey: "AIzaSyDvB_Zulzyw0nyLHE9Ofo3eP2McAPa52lg",
-
-    authDomain: "universermanga.firebaseapp.com",
-
-    projectId: "universermanga",
-
-    storageBucket: "universermanga.firebasestorage.app",
-
-    messagingSenderId: "508804251809",
-
-    appId: "1:508804251809:web:2a0e0afb38cf0b1fc4b0e0",
-
-    measurementId: "G-KVMYQ7RHD6"
-
-  };
-
-
-
-  const app = initializeApp(firebaseConfig);
-
-  const auth = getAuth(app);
-
-
-
-  // Donde mostrar el nombre en el sidebar
-
-  const UserName = document.getElementById("Name_Id");
-
-
-
-  onAuthStateChanged(auth, (user) => {
-
-    if (!user || !user.emailVerified) {
-
-      window.location.href = "page_id.html"; // login
-
-    } else {
-
-      // Mostrar nombre en el sidebar
-
-      UserName.textContent = user.displayName || "Usuario";
-
-    }
-
-  });
-
-</script>
-
-
-
+  <script type="module" src="script/server_psql.js"></script>
 </body>
 
-
-
 </html>
-
-
-
-  
