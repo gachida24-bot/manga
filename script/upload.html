@@ -110,6 +110,37 @@
       }
       return urls;
     }
+    // ================== CONECTAR FIREBASE CON SUPABASE ==================
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDvB_Zulzyw0nyLHE9Ofo3eP2McAPa52lg",
+  authDomain: "universermanga.firebaseapp.com",
+  projectId: "universermanga",
+  storageBucket: "universermanga.firebasestorage.app",
+  messagingSenderId: "508804251809",
+  appId: "1:508804251809:web:2a0e0afb38cf0b1fc4b0e0",
+  measurementId: "G-KVMYQ7RHD6"
+};
+
+const appFB = initializeApp(firebaseConfig);
+const authFB = getAuth(appFB);
+
+// Cuando Firebase tenga sesión activa, autentícala en Supabase
+onAuthStateChanged(authFB, async (user) => {
+  if (user) {
+    const token = await user.getIdToken();
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: 'firebase',
+      token
+    });
+    if (error) console.error("Error vinculando Firebase → Supabase:", error);
+    else console.log("✅ Usuario vinculado entre Firebase y Supabase");
+  } else {
+    console.warn("Usuario no logueado en Firebase");
+  }
+});
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
