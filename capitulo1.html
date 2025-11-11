@@ -3,23 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <title>Manga Ejemplo - Capítulo 1</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://res.cloudinary.com; img-src 'self' https://res.cloudinary.com data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #111;
+      color: #fff;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 20px 0;
+    }
+
+    #viewer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 90vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    #viewer.horizontal {
+      flex-direction: row;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+    }
+
+    #viewer.horizontal img {
+      width: 100vw;
+      height: auto;
+      flex-shrink: 0;
+      scroll-snap-align: center;
+    }
+
+    #toggle-mode {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 999;
+      font-size: 14px;
+    }
+
+    a {
+      display: inline-block;
+      margin: 20px;
+      color: #0ff;
+      text-decoration: none;
+    }
+  </style>
 </head>
+
 <body>
   <h1>Capítulo 1</h1>
 
-  <img src="img/pagina1.png" width="100%">
-  <img src="img/pagina2.png" width="100%">
-  <img src="img/pagina3.png" width="100%">
-  <img src="img/pagina4.png" width="100%">
-  <img src="img/pagina5.png" width="100%">
-  <img src="img/pagina6.png" width="100%">
-  <img src="img/pagina7.png" width="100%">
-  <img src="img/pagina8.png" width="100%">
-  <img src="img/pagina9.png" width="100%">
-  <img src="img/pagina10.png" width="100%">
-  <img src="img/pagina11.png" width="100%">
-  <!-- Sigue agregando páginas -->
+  <button id="toggle-mode">Cambiar a horizontal</button>
+
+  <div id="viewer" class="vertical">
+    <img src="img/pagina1.png" width="100%">
+    <img src="img/pagina2.png" width="100%">
+    <img src="img/pagina3.png" width="100%">
+    <img src="img/pagina4.png" width="100%">
+    <img src="img/pagina5.png" width="100%">
+    <img src="img/pagina6.png" width="100%">
+    <img src="img/pagina7.png" width="100%">
+    <img src="img/pagina8.png" width="100%">
+    <img src="img/pagina9.png" width="100%">
+    <img src="img/pagina10.png" width="100%">
+    <img src="img/pagina11.png" width="100%">
+  </div>
 
   <a href="manga1.html">⬅ Volver al Manga</a>
+
+  <script>
+    const viewer = document.getElementById('viewer');
+    const toggleBtn = document.getElementById('toggle-mode');
+
+    toggleBtn.addEventListener('click', () => {
+      if (viewer.classList.contains('vertical')) {
+        viewer.classList.remove('vertical');
+        viewer.classList.add('horizontal');
+        toggleBtn.textContent = 'Cambiar a vertical';
+      } else {
+        viewer.classList.remove('horizontal');
+        viewer.classList.add('vertical');
+        toggleBtn.textContent = 'Cambiar a horizontal';
+      }
+    });
+  </script>
 </body>
 </html>
